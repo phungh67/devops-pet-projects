@@ -14,3 +14,5 @@ flask-blog/sandbox/*
 flask-blog/*.sqlite
 flask-blog/migrations
 flask-blog/migrations/*
+flasky/app/__pycache__
+flasky/sandbox
