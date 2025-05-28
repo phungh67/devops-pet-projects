@@ -22,3 +22,5 @@ flask-mega/flask
 flask-mega/flask/*
 flask-mega/migrations
 flask-mega/migrations/*
+flask-mega/app/__pycache__/*
+flask-mega/*.db
