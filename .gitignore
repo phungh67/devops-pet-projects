@@ -16,3 +16,7 @@ flask-blog/migrations
 flask-blog/migrations/*
 flasky/app/__pycache__
 flasky/sandbox
+flask-mega/__pycache__/
+flask-mega/__pycache__/*
+flask-mega/flask
+flask-mega/flask/*
