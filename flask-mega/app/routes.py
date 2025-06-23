@@ -4,27 +4,27 @@ from urllib.parse import urlsplit
 from datetime import datetime, timezone
 from app import app
 from app import db
-from app.forms import LoginForm, RegistrationForm, EditProfileForm, EmptyForm
-from app.models import User
+from app.forms import LoginForm, RegistrationForm, EditProfileForm, EmptyForm, PostForm
+from app.models import User, Post
 
 import sqlalchemy as sa
 
-@app.route('/')
-@app.route('/index')
-@login_required
-def index():
-    user = {'username': 'Hoang'}
-    posts = [
-        {
-            'author': {'username': 'Hoang'},
-            'body': 'Beautiful day in Sweden'
-        },
-        {
-            'author': {'username': 'Skjord'},
-            'body': 'Something to remember at MidSummer fest'
-        }
-    ]
-    return render_template('index.html', title = 'Home', posts=posts)
+# @app.route('/')
+# @app.route('/index')
+# @login_required
+# def index():
+#     user = {'username': 'Hoang'}
+#     posts = [
+#         {
+#             'author': {'username': 'Hoang'},
+#             'body': 'Beautiful day in Sweden'
+#         },
+#         {
+#             'author': {'username': 'Skjord'},
+#             'body': 'Something to remember at MidSummer fest'
+#         }
+#     ]
+#     return render_template('index.html', title = 'Home', posts=posts)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -130,6 +130,29 @@ def user(username):
     # return render_template('user.html', user=user, posts=posts)
     form = EmptyForm()
     return render_template('user.html', user=user, posts=posts, form=form)
+
+@app.route('/', methods=['GET', 'POST'])
+@app.route('/index', methods=['GET', 'POST'])
+@login_required
+def index():
+    form = PostForm()
+    if form.validate_on_submit():
+        post = Post(body=form.post.data, author=current_user)
+        db.session.add(post)
+        db.session.commit()
+        flash('You post is now live!')
+        return redirect(url_for('index'))
+    posts = [
+        {
+            'author': {'username': 'Dummy #1'},
+            'body': 'Just a dummy text for correctly displayed.'
+        },
+        {
+            'author': {'username': 'Dummy #2'},
+            'body': 'Since 1 post is too few, we add another dummy post.'
+        }
+    ]
+    return render_template('index.html', title='Home Page', form=form, posts=posts)
 
 @app.before_request
 def before_request():
