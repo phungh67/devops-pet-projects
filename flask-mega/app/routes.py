@@ -142,16 +142,7 @@ def index():
         db.session.commit()
         flash('You post is now live!')
         return redirect(url_for('index'))
-    posts = [
-        {
-            'author': {'username': 'Dummy #1'},
-            'body': 'Just a dummy text for correctly displayed.'
-        },
-        {
-            'author': {'username': 'Dummy #2'},
-            'body': 'Since 1 post is too few, we add another dummy post.'
-        }
-    ]
+    posts = db.session.scalars(current_user.following_posts()).all()
     return render_template('index.html', title='Home Page', form=form, posts=posts)
 
 @app.before_request
