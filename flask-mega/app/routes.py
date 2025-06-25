@@ -1,9 +1,9 @@
 from flask import render_template, flash, redirect, url_for, request
 from flask_login import current_user, login_user, logout_user, login_required
+from flask_mail import Message
 from urllib.parse import urlsplit
 from datetime import datetime, timezone
-from app import app
-from app import db
+from app import app, db, mail
 from app.forms import LoginForm, RegistrationForm, EditProfileForm, EmptyForm, PostForm
 from app.models import User, Post
 
@@ -174,6 +174,13 @@ def explore():
         if posts.has_prev else None
     return render_template('index.html', title = 'Explore', posts=posts.items,
                            next_url=next_url, prev_url=prev_url)
+
+@app.route('/send_mail')
+def send_mail():
+    msg = Message(subject='Hello from the other side!', sender='phungh67@gmail.com', recipients=['lhpespoir39@gmail.com'])
+    msg.body = "Hey espoir, sending you this email from my Flask app, lmk if it works."
+    mail.send(msg)
+    return "Sent!"
 
 @app.before_request
 def before_request():
