@@ -7,11 +7,15 @@ from flask_mail import Mail
 from flask_moment import Moment
 from flask_babel import Babel
 
+from app.errors import bp as errors_bp
+
 def get_locale():
     return request.accept_languages.best_match(app.config['LANGUAGES'])
 
 app = Flask(__name__)
 app.config.from_object(Config)
+app.register_blueprint(errors_bp)
+
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 login = LoginManager(app)
@@ -20,4 +24,4 @@ mail = Mail(app)
 moment = Moment(app)
 babel = Babel(app, locale_selector=get_locale)
 
-from app import routes, models, errors
+from app import routes, models
