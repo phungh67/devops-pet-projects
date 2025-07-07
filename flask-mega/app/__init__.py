@@ -8,6 +8,7 @@ from flask_moment import Moment
 from flask_babel import Babel
 
 from app.errors import bp as errors_bp
+from app.auth import bp as auth_bp
 
 def get_locale():
     return request.accept_languages.best_match(app.config['LANGUAGES'])
@@ -15,6 +16,7 @@ def get_locale():
 app = Flask(__name__)
 app.config.from_object(Config)
 app.register_blueprint(errors_bp)
+app.register_blueprint(auth_bp, url_prefix='/auth')
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
