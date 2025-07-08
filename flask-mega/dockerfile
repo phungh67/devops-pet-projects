@@ -11,4 +11,4 @@ COPY blog.py config.py ./
 ENV FLASK_APP=blog.py
 
 EXPOSE 5000
-ENTRYPOINT ["flask run"]
+CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0"]
