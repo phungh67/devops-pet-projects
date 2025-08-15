@@ -1,1 +1,42 @@
-# Sample README, will add later lol
+scholartrack/
+├── app/
+│   ├── __init__.py          # App factory & config init
+│   ├── config.py            # Dev/Prod/Test configs
+│   ├── extensions.py        # DB, Login, Migrate, etc.
+│   │
+│   ├── models/              # SQLAlchemy models
+│   │   ├── __init__.py
+│   │   ├── user.py          # User, roles
+│   │   ├── event.py         # Admissions/scholarships
+│   │   └── blog.py          # Blog posts
+│   │
+│   ├── views/               # Routes (Blueprints)
+│   │   ├── __init__.py
+│   │   ├── public.py        # Calendar + blogs (guest)
+│   │   └── student.py       # Calendar + blogs (student)
+│   │
+│   ├── services/            # Business logic layer
+│   │   ├── __init__.py
+│   │   ├── scraping.py      # Scraping/import logic
+│   │   └── personalization.py # User-specific calendar
+│   │
+│   ├── templates/           # Jinja2 HTML templates
+│   │   ├── base.html
+│   │   ├── calendar.html
+│   │   └── blog.html
+│   │
+│   ├── static/              # CSS, JS, images
+│   │
+│   └── utils/               # Helpers
+│       ├── __init__.py
+│       └── date_utils.py
+│
+├── migrations/              # Alembic migrations
+├── tests/                   # Unit/integration tests
+│
+├── Dockerfile               # Containerization
+├── docker-compose.yml       # Local dev setup
+├── requirements.txt         # Dependencies
+├── run.py                   # Entry point for running app
+├── .env                     # Environment variables
+└── README.md
