@@ -20,6 +20,9 @@ class User(UserMixin, db.Model):
     cpa = db.Column(db.Float, nullable=False)
     study_field = db.Column(db.String(120), nullable=True)
 
+    country_origin = db.Column(db.String(100), nullable=True)
+    preferred_destination = db.Column(db.String(100), nullable=True)
+
     role = db.Column(db.Enum("student", "admin", name="role_types"), default="student", nullable=False)
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
