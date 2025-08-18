@@ -1,0 +1,38 @@
+# app/models/user.py
+
+from datetime import datetime
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import UserMixin
+from ..extenisions import db, login_manager
+
+
+class User(UserMixin, db.Model):
+    __tablename__ = "users"
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(120), nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password_hash = db.Column(db.String(256), nullable=False)
+
+    degree = db.Column(db.Enum("bachelor", "master", name="degree_types"), nullable=False)
+    school = db.Column(db.String(200), nullable=False)
+    ranking = db.Column(db.Float, nullable=True)   # percentile or relative score
+    cpa = db.Column(db.Float, nullable=False)
+    study_field = db.Column(db.String(120), nullable=True)
+
+    role = db.Column(db.Enum("student", "admin", name="role_types"), default="student", nullable=False)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Password helpers
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
