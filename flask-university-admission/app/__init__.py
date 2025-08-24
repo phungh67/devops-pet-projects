@@ -1,8 +1,8 @@
 import os
 from flask import Flask
-from .config import DevelopmentConfig
+from .config import DevConfig
 from .extenisions import db, migrate, login_manager
-from .views import register_blueprints
+# from .views import register_blueprints
 
 def create_app(config_name: str | None = None):
     """Application factory for ScholarTrack
@@ -11,14 +11,14 @@ def create_app(config_name: str | None = None):
     argument -- 
         config_name ( str | None ): Enviroment name to be passed (dev, prod, test),
                                     defaults to FLASK_ENV or 'dev'
-    Return: return_description
+    Return: A Flask application
     """ 
 
     # Dynamically pick and overdrive enviroment
     config_name = config_name or os.getenv("FLASK_ENV", "dev")
 
     app = Flask(__name__)
-    app.config.from_object(DevelopmentConfig)
+    app.config.from_object(DevConfig)
 
     # Initialize extensions
     db.init_app(app)
@@ -26,7 +26,7 @@ def create_app(config_name: str | None = None):
     login_manager.init_app(app)
 
     # Register blueprints
-    register_blueprints(app)
+    # register_blueprints(app)
 
     return app
     
