@@ -30,6 +30,9 @@ class User(UserMixin, db.Model):
 
     bookmarks = db.relationship("Bookmark", back_populates="user", cascade="all, delete-orphan")
 
+    # inside User class
+    blog_posts = db.relationship("BlogPost", back_populates="author", cascade="all, delete-orphan")
+
     # Password helpers
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)

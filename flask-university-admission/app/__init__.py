@@ -2,7 +2,7 @@ import os
 from flask import Flask
 from .config import DevConfig
 from .extenisions import db, migrate, login_manager
-from .models import user, bookmark, event
+from .models import user, bookmark, event, blogpost
 # from .views import register_blueprints
 
 def create_app(config_name: str | None = None):
