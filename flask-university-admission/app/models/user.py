@@ -14,7 +14,7 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
 
-    degree = db.Column(db.Enum("bachelor", "master", name="degree_types"), nullable=False)
+    degree = db.Column(db.String(50), nullable=False)
     school = db.Column(db.String(200), nullable=False)
     ranking = db.Column(db.Float, nullable=True)   # percentile or relative score
     cpa = db.Column(db.Float, nullable=False)

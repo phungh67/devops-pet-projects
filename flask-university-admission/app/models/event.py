@@ -12,10 +12,7 @@ class Event(db.Model):
     university = db.Column(db.String(200), nullable=False)
     country = db.Column(db.String(100), nullable=False)
 
-    degree_level = db.Column(
-        db.Enum("bachelor", "master", "phd", name="degree_levels"),
-        nullable=False
-    )
+    degree_level = db.Column(db.String(50), nullable=False)
 
     deadline = db.Column(db.Date, nullable=False)
     description = db.Column(db.Text, nullable=True)
