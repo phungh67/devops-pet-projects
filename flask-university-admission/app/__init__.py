@@ -3,6 +3,8 @@ from flask import Flask
 from .config import DevConfig
 from .extenisions import db, migrate, login_manager
 from .models import user, bookmark, event, blogpost
+from app.routes.events import events_bp
+from app.routes.blog import blog_bp
 # from .views import register_blueprints
 
 def create_app(config_name: str | None = None):
@@ -27,7 +29,8 @@ def create_app(config_name: str | None = None):
     login_manager.init_app(app)
 
     # Register blueprints
-    # register_blueprints(app)
+    app.register_blueprint(events_bp)
+    app.register_blueprint(blog_bp)
 
     return app
     

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admission & Scholarship Calendar</title>
+</head>
+<body>
+    <h1>Admission & Scholarship Deadlines</h1>
+    <table border="1">
+        <tr>
+            <th>Title</th>
+            <th>University</th>
+            <th>Country</th>
+            <th>Degree</th>
+            <th>Deadline</th>
+            <th>Source</th>
+        </tr>
+        {% for e in events %}
+        <tr>
+            <td>{{ e.title }}</td>
+            <td>{{ e.university }}</td>
+            <td>{{ e.country }}</td>
+            <td>{{ e.degree_level }}</td>
+            <td>{{ e.deadline.strftime('%Y-%m-%d') }}</td>
+            <td><a href="{{ e.source_url }}" target="_blank">Link</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
