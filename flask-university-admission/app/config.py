@@ -13,7 +13,7 @@ class DevConfig(Config):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.getenv(
         "DEV_DATABASE_URL",
-        "mysql+pymysql://root:flask-root-pw@mysql-flask/scholartrack_dev"
+        "mysql+pymysql://root:flask-root-pw@127.0.0.1/scholartrack_dev"
     )
 
 

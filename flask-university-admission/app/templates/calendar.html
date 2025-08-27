@@ -17,9 +17,11 @@ document.addEventListener("DOMContentLoaded", function() {
             // Attach tooltip with extra info
             tippy(info.el, {
                 content: `
-                    <strong>${info.event.title}</strong><br>
-                    Deadline: ${info.event.startStr}<br>
-                    <a href="${info.event.url}" target="_blank">More info</a>
+                        <strong>${info.event.title}</strong><br>
+                        Deadline: ${info.event.startStr}<br>
+                        ${info.event.extendedProps.university ? "University: " + info.event.extendedProps.university + "<br>" : ""}
+                        ${info.event.extendedProps.country ? "Country: " + info.event.extendedProps.country + "<br>" : ""}
+                        ${info.event.url ? "<a href='" + info.event.url + "' target='_blank'>More info</a>" : ""}
                 `,
                 allowHTML: true,
                 theme: "light-border",
