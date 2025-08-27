@@ -18,7 +18,7 @@ def list_events_json():
             "university": e.university,
             "country": e.country,
             "degree_level": e.degree_level,
-            "deadline": e.deadline.strftime("%Y-%m-%d"),
+            "start": e.deadline.strftime("%Y-%m-%d"),
             "source_url": e.source_url
         }
         for e in events

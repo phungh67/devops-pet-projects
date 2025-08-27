@@ -1,14 +1,33 @@
-{% extends "base.html" %}
+{% block head %}
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+<link href="https://unpkg.com/tippy.js@6/dist/tippy.css" rel="stylesheet">
+{% endblock %}
 
-{% block title %}Home{% endblock %}
-
-{% block content %}
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8 text-center">
-            <h1 class="display-4 mb-4">Hello World</h1>
-            <p class="lead text-muted">Welcome to my personal portfolio website</p>
-        </div>
-    </div>
-</div>
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+<script src="https://unpkg.com/@popperjs/core@2"></script>
+<script src="https://unpkg.com/tippy.js@6"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    var calendarEl = document.getElementById("calendar");
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: "dayGridMonth",
+        events: "/events/api",
+        eventDidMount: function(info) {
+            // Attach tooltip with extra info
+            tippy(info.el, {
+                content: `
+                    <strong>${info.event.title}</strong><br>
+                    Deadline: ${info.event.startStr}<br>
+                    <a href="${info.event.url}" target="_blank">More info</a>
+                `,
+                allowHTML: true,
+                theme: "light-border",
+                placement: "top",
+            });
+        }
+    });
+    calendar.render();
+});
+</script>
 {% endblock %}

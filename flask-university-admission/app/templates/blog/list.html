@@ -1,20 +1,16 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Blog</title>
-</head>
-<body>
-    <h1>Scholarship & Admission Blog</h1>
+{% extends "base.html" %}
+{% block title %}Blog{% endblock %}
 
+{% block content %}
+    <h2>Scholarship & Admission Blog</h2>
     {% for p in posts %}
         <article>
-            <h2>{{ p.title }}</h2>
-            <p><em>Posted on {{ p.created_at.strftime('%Y-%m-%d') }}</em></p>
+            <h3>{{ p.title }}</h3>
+            <p><em>{{ p.created_at.strftime('%Y-%m-%d') }}</em></p>
             <div>{{ p.content }}</div>
             <hr>
         </article>
     {% else %}
         <p>No blog posts yet.</p>
     {% endfor %}
-</body>
-</html>
+{% endblock %}
