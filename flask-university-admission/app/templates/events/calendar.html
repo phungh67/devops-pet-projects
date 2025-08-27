@@ -1,25 +1,52 @@
 {% extends "base.html" %}
 
+{% block head %}
+  <!-- Optional styling for tooltips -->
+  <link href="https://unpkg.com/tippy.js@6/dist/tippy.css" rel="stylesheet">
+{% endblock %}
+
 {% block content %}
-  <h1>Admissions Calendar</h1>
+  <h1>Admissions & Scholarships Calendar</h1>
   <div id="calendar"></div>
 {% endblock %}
 
 {% block scripts %}
+  <!-- FullCalendar + tooltip libs -->
   <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/index.global.min.js"></script>
   <script src="https://unpkg.com/@popperjs/core@2"></script>
   <script src="https://unpkg.com/tippy.js@6"></script>
+
   <script>
     document.addEventListener("DOMContentLoaded", function() {
       var calendarEl = document.getElementById("calendar");
+
       if (!calendarEl) {
         console.error("❌ #calendar div not found!");
         return;
       }
+
       var calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: "dayGridMonth",
-        events: "/events/api"
+        events: "/events/api",
+
+        // Add tooltips
+        eventDidMount: function(info) {
+          if (info.el) {
+            tippy(info.el, {
+              content: `
+                <strong>${info.event.title}</strong><br>
+                Deadline: ${info.event.startStr}<br>
+                ${info.event.extendedProps.university ? "University: " + info.event.extendedProps.university + "<br>" : ""}
+                ${info.event.url ? "<a href='" + info.event.url + "' target='_blank'>More info</a>" : ""}
+              `,
+              allowHTML: true,
+              theme: "light-border",
+              placement: "top",
+            });
+          }
+        }
       });
+
       calendar.render();
     });
   </script>
