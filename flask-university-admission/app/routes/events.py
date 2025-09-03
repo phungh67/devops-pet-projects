@@ -16,12 +16,13 @@ def list_events_json():
             "id": e.id,
             "title": e.title,
             "start": e.deadline.strftime("%Y-%m-%d"),
-            "source_url": e.source_url,
+            # "source_url": e.source_url,
             "extendedProps": {
                 "university": e.university,
                 "country": e.country,
                 "degree_level": e.degree_level,
                 "description": e.description,
+                "source_url": e.source_url,
             }
         }
         for e in events
