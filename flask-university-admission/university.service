@@ -1,0 +1,11 @@
+[Unit]
+Description=Start up essential things for university admission server
+After=docker.service
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=root
+ExecStart=/home/huyhoang-ph/devops-pet-projects/flask-university-admission/startup.sh
