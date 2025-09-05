@@ -30,7 +30,7 @@
     <ul>
       {% for p in posts %}
         <li>
-          <a href="{{ url_for('blog.list_posts_json', post_id=p.id) }}">
+          <a href="{{ url_for('blog.view_post', post_id=p.id) }}">
             {{ p.title }}
           </a> — {{ p.created_at.strftime("%b %d, %Y") }}
         </li>
@@ -38,6 +38,6 @@
         <li>No blog posts yet.</li>
       {% endfor %}
     </ul>
-    <a href="{{ url_for('blog.list_posts_json') }}">View all blog posts →</a>
+    <a href="{{ url_for('blog.blog_list_view') }}">View all blog posts →</a>
   </section>
 {% endblock %}

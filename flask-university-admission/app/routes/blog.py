@@ -21,9 +21,18 @@ def list_posts_json():
         for p in posts
     ])
 
-
 # Public: HTML page
 @blog_bp.route("/", methods=["GET"])
 def blog_list_view():
     posts = BlogPost.query.order_by(BlogPost.created_at.desc()).all()
     return render_template("blog/list.html", posts=posts)
+
+@blog_bp.route("/", methods=["GET"])
+def list_posts():
+    posts = BlogPost.query.order_by(BlogPost.created_at.desc()).all()
+    return render_template("blog.html", posts=posts)
+
+@blog_bp.route("/<int:post_id>", methods=["GET"])
+def view_post(post_id):
+    post = BlogPost.query.get_or_404(post_id)
+    return render_template("blog_post.html", post=post)
