@@ -5,6 +5,7 @@ from .extenisions import db, migrate, login_manager
 from .models import user, bookmark, event, blogpost
 from app.routes.events import events_bp
 from app.routes.blog import blog_bp
+from app.routes.home import home_bp
 # from .views import register_blueprints
 
 def create_app(config_name: str | None = None):
@@ -31,6 +32,7 @@ def create_app(config_name: str | None = None):
     # Register blueprints
     app.register_blueprint(events_bp)
     app.register_blueprint(blog_bp)
+    app.register_blueprint(home_bp)
 
     return app
     

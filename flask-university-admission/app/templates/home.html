@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome{% endblock %}
+
+{% block content %}
+  <section class="intro">
+    <h1>🎓 Master Admission & Scholarship Tracker</h1>
+    <p>Find admission deadlines and scholarship opportunities across Europe.</p>
+  </section>
+
+  <section class="calendar-preview">
+    <h2>Upcoming Deadlines</h2>
+    <ul>
+      {% for e in events %}
+        <li>
+          <strong>{{ e.title }}</strong> — {{ e.deadline.strftime("%b %d, %Y") }}
+          {% if e.source_url %}
+            (<a href="{{ e.source_url }}" target="_blank">Source</a>)
+          {% endif %}
+        </li>
+      {% else %}
+        <li>No upcoming events.</li>
+      {% endfor %}
+    </ul>
+    <a href="{{ url_for('events.calendar_view') }}">View full calendar →</a>
+  </section>
+
+  <section class="blog-preview">
+    <h2>Latest Blog Posts</h2>
+    <ul>
+      {% for p in posts %}
+        <li>
+          <a href="{{ url_for('blog.list_posts_json', post_id=p.id) }}">
+            {{ p.title }}
+          </a> — {{ p.created_at.strftime("%b %d, %Y") }}
+        </li>
+      {% else %}
+        <li>No blog posts yet.</li>
+      {% endfor %}
+    </ul>
+    <a href="{{ url_for('blog.list_posts_json') }}">View all blog posts →</a>
+  </section>
+{% endblock %}
