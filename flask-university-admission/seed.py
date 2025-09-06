@@ -1,4 +1,3 @@
-# seed.py
 from datetime import date, datetime, timedelta
 from app import create_app, db
 from app.models.user import User
@@ -16,7 +15,6 @@ def seed():
         admin = User(
             name="Admin User",
             email="admin@example.com",
-            password_hash="hashed_password",  # TODO: hash properly later
             degree="PhD",
             school="Example University",
             cpa=4.0,
@@ -24,11 +22,11 @@ def seed():
             country_origin="Germany",
             role="admin",
         )
+        admin.set_password("admin123")  # ✅ hash password
 
         student = User(
             name="Student User",
             email="student@example.com",
-            password_hash="hashed_password",
             degree="Bachelor",
             school="Some Uni",
             cpa=3.6,
@@ -36,6 +34,7 @@ def seed():
             country_origin="France",
             role="student",
         )
+        student.set_password("student123")  # ✅ hash password
 
         db.session.add_all([admin, student])
         db.session.commit()
@@ -45,7 +44,7 @@ def seed():
             title="Master Scholarship at TU Berlin",
             university="Technische Universität Berlin",
             country="Germany",
-            degree_level="Master",
+            degree_level="Master",   # ✅ match field name in model
             deadline=date.today() + timedelta(days=30),
             description="Full scholarship for international students.",
             source_url="https://www.tu-berlin.de/scholarship",
@@ -69,14 +68,12 @@ def seed():
             title="How to Apply for EU Scholarships",
             content="Step-by-step guide for EU-based scholarships.",
             author_id=admin.id,
-            created_at=datetime.utcnow(),
         )
 
         b2 = BlogPost(
             title="Top 5 Universities in Germany",
             content="An overview of the best German universities for Masters.",
             author_id=admin.id,
-            created_at=datetime.utcnow(),
         )
 
         db.session.add_all([b1, b2])
