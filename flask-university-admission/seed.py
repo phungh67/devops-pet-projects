@@ -68,12 +68,14 @@ def seed():
             title="How to Apply for EU Scholarships",
             content="Step-by-step guide for EU-based scholarships.",
             author_id=admin.id,
+            post_type=2
         )
 
         b2 = BlogPost(
             title="Top 5 Universities in Germany",
             content="An overview of the best German universities for Masters.",
             author_id=admin.id,
+            post_type=1
         )
 
         db.session.add_all([b1, b2])

@@ -1,6 +1,8 @@
 # app/routes/blog.py
 
-from flask import Blueprint, render_template, jsonify
+from flask import Blueprint, render_template, jsonify, redirect, url_for, flash
+from flask_login import login_required, current_user
+from app.extenisions import db
 from app.models.blogpost import BlogPost
 
 blog_bp = Blueprint("blog", __name__, url_prefix="/blog")
@@ -36,3 +38,17 @@ def blog_list_view():
 def view_post(post_id):
     post = BlogPost.query.get_or_404(post_id)
     return render_template("blog_post.html", post=post)
+
+# Admin only: deleted admin posts
+@blog_bp.route("/<int:post_id>/delete", methods=["POST"])
+@login_required
+def delete_post(post_id):
+    post = BlogPost.query.get_or_404(post_id)
+
+    if current_user.role != "admin":
+        flash("❌ Only admins can delete posts.", "danger")
+
+    db.session.delete(post)
+    db.session.commit()
+    flash("✅ Post deleted.", "success")
+    return redirect(url_for("blog.blog_list_view"))

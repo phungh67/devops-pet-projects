@@ -19,5 +19,12 @@ class BlogPost(db.Model):
     # Relationships
     author = db.relationship("User", back_populates="blog_posts")
 
+    # Authorized post only
+    post_type = db.Column(db.Integer, default=2, nullable=False)
+
+    @property
+    def is_admin_post(self):
+        return self.post_type == 1
+
     def __repr__(self):
         return f"<BlogPost {self.title}>"
