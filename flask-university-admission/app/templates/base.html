@@ -1,29 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>{% block title %}Admission & Scholarships{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-
-    <!-- FullCalendar CSS (CDN for now) -->
-    {% block head %}
-    {% endblock %}
+  <meta charset="UTF-8">
+  <title>{% block title %}Scholarship Tracker{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block head %}{% endblock %}
 </head>
 <body>
-    <header>
-        <h1>Admission & Scholarship Tracker</h1>
-        <nav>
-            <a href="{{ url_for('events.calendar_view') }}">Calendar</a> |
-            <a href="{{ url_for('blog.blog_list_view') }}">Blog</a>
-        </nav>
-    </header>
+  <header>
+    <nav class="navbar">
+      <a href="{{ url_for('home.home') }}">🏠 Home</a>
+      <a href="{{ url_for('events.calendar_view') }}">📅 Calendar</a>
+      <a href="{{ url_for('blog.blog_list_view') }}">📰 Blog</a>
+    </nav>
+  </header>
 
-    <main>
-        {% block content %}{% endblock %}
-    </main>
+  <main>
+    {% block content %}{% endblock %}
+  </main>
 
-    <!-- JS scripts -->
-    <script src="{{ url_for('static', filename='js/calendar.js') }}"></script>
-    {% block scripts %}{% endblock %}
+  {% block scripts %}{% endblock %}
 </body>
 </html>
