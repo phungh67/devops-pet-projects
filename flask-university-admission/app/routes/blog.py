@@ -1,5 +1,6 @@
 # app/routes/blog.py
 
+import markdown
 from flask import Blueprint, render_template, jsonify, redirect, url_for, flash, request
 from flask_login import login_required, current_user
 from app.extenisions import db
@@ -38,7 +39,8 @@ def blog_list_view():
 @blog_bp.route("/<int:post_id>", methods=["GET"])
 def view_post(post_id):
     post = BlogPost.query.get_or_404(post_id)
-    return render_template("blog_post.html", post=post)
+    rendered_content = markdown.markdown(post.content)
+    return render_template("blog_post.html", post=post, rendered_content=rendered_content)
 
 # Create post --- normal user
 @blog_bp.route("/create", methods=["GET", "POST"])

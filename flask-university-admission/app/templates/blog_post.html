@@ -1,9 +1,12 @@
 {% extends "base.html" %}
+
 {% block content %}
 <article>
   <h1>{{ post.title }}</h1>
   <p><em>Published on {{ post.created_at.strftime("%b %d, %Y") }} by {{ post.author.name }}</em></p>
-  <div>{{ post.content|safe }}</div>
+  
+  <!-- Use the rendered HTML instead of raw -->
+  <div>{{ rendered_content|safe }}</div>
 </article>
 
 {% if current_user.is_authenticated and (current_user.role == "admin" or current_user.id == post.author_id) %}
