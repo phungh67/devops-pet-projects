@@ -1,18 +1,16 @@
 {% extends "base.html" %}
-{% block title %}{{ post.title }}{% endblock %}
-
 {% block content %}
-  <article>
-    <h1>{{ post.title }}</h1>
-    <p><em>Published on {{ post.created_at.strftime("%b %d, %Y") }} by {{ post.author.name }}</em></p>
-    <div>{{ post.content|safe }}</div>
-  </article>
+<article>
+  <h1>{{ post.title }}</h1>
+  <p><em>Published on {{ post.created_at.strftime("%b %d, %Y") }} by {{ post.author.name }}</em></p>
+  <div>{{ post.content|safe }}</div>
+</article>
 
-  {% if current_user.is_authenticated and current_user.role == "admin" %}
-    <form action="{{ url_for('blog.delete_post', post_id=post.id) }}" method="POST">
-      <button type="submit" style="color:red;">🗑 Delete Post</button>
-    </form>
-  {% endif %}
+{% if current_user.is_authenticated and (current_user.role == "admin" or current_user.id == post.author_id) %}
+  <form action="{{ url_for('blog.delete_post', post_id=post.id) }}" method="POST">
+    <button type="submit" style="color:red;">🗑 Delete Post</button>
+  </form>
+{% endif %}
 
-  <a href="{{ url_for('blog.blog_list_view') }}">← Back to blog</a>
+<a href="{{ url_for('blog.blog_list_view') }}">← Back to blog</a>
 {% endblock %}

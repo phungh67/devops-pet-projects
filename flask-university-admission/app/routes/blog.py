@@ -1,6 +1,6 @@
 # app/routes/blog.py
 
-from flask import Blueprint, render_template, jsonify, redirect, url_for, flash
+from flask import Blueprint, render_template, jsonify, redirect, url_for, flash, request
 from flask_login import login_required, current_user
 from app.extenisions import db
 from app.models.blogpost import BlogPost
@@ -8,6 +8,7 @@ from app.models.blogpost import BlogPost
 blog_bp = Blueprint("blog", __name__, url_prefix="/blog")
 
 
+# --The list blog by JSON API
 # Public: JSON API
 @blog_bp.route("/api", methods=["GET"])
 def list_posts_json():
@@ -39,16 +40,48 @@ def view_post(post_id):
     post = BlogPost.query.get_or_404(post_id)
     return render_template("blog_post.html", post=post)
 
+# Create post --- normal user
+@blog_bp.route("/create", methods=["GET", "POST"])
+@login_required
+def create_post():
+    if request.method == "POST":
+        title = request.form.get("title")
+        content = request.form.get("content")
+
+        if not title or not content:
+            flash("⚠️ Title and content are required", "warning")
+            return redirect(url_for("blog.create_post"))
+        
+        # Handling post type
+        post_type = 1 if current_user.role == "admin" else 2
+
+        new_post = BlogPost(
+            title=title,
+            content=content,
+            author_id=current_user.id,
+            post_type=post_type,
+        )
+        db.session.add(new_post)
+        db.session.commit()
+        flash("✅ Post created!", "success")
+        return redirect(url_for("blog.blog_list_view"))
+    
+    return render_template("blog_create.html")
+
 # Admin only: deleted admin posts
 @blog_bp.route("/<int:post_id>/delete", methods=["POST"])
 @login_required
 def delete_post(post_id):
     post = BlogPost.query.get_or_404(post_id)
 
-    if current_user.role != "admin":
-        flash("❌ Only admins can delete posts.", "danger")
+    # ✅ Admin can delete any, user only their own
+    if current_user.role != "admin" and post.author_id != current_user.id:
+        flash("❌ You cannot delete this post.", "danger")
+        return redirect(url_for("blog.view_post", post_id=post.id))
 
     db.session.delete(post)
     db.session.commit()
     flash("✅ Post deleted.", "success")
     return redirect(url_for("blog.blog_list_view"))
+
+
