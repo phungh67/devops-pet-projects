@@ -22,6 +22,9 @@ class BlogPost(db.Model):
     # Authorized post only
     post_type = db.Column(db.Integer, default=2, nullable=False)
 
+    # add new property to allow pictures/images in blog posts
+    image_path = db.Column(db.String(255), nullable=True)
+
     @property
     def is_admin_post(self):
         return self.post_type == 1

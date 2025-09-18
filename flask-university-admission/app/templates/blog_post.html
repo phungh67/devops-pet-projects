@@ -5,6 +5,9 @@
   <h1>{{ post.title }}</h1>
   <p><em>Published on {{ post.created_at.strftime("%b %d, %Y") }} by {{ post.author.name }}</em></p>
   
+  {% if post.image_path %}
+    <img src="{{ url_for('static', filename='uploads/' ~ post.image_path) }}" alt="Post image" style="max-width:100%; height:auto; margin:1em 0;">
+  {% endif %}
   <!-- Use the rendered HTML instead of raw -->
   <div>{{ rendered_content|safe }}</div>
 </article>

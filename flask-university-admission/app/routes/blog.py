@@ -6,6 +6,15 @@ from flask_login import login_required, current_user
 from app.extenisions import db
 from app.models.blogpost import BlogPost
 
+import os
+from werkzeug.utils import secure_filename
+
+UPLOAD_FOLDER = 'app/static/uploads'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 blog_bp = Blueprint("blog", __name__, url_prefix="/blog")
 
 
@@ -49,11 +58,17 @@ def create_post():
     if request.method == "POST":
         title = request.form.get("title")
         content = request.form.get("content")
+        file = request.files.get("image")
 
         if not title or not content:
             flash("⚠️ Title and content are required", "warning")
             return redirect(url_for("blog.create_post"))
         
+        filename = None
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(UPLOAD_FOLDER, filename))
+
         # Handling post type
         post_type = 1 if current_user.role == "admin" else 2
 
@@ -62,6 +77,7 @@ def create_post():
             content=content,
             author_id=current_user.id,
             post_type=post_type,
+            image_path=filename
         )
         db.session.add(new_post)
         db.session.commit()
