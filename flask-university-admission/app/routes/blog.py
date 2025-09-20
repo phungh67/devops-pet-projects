@@ -9,7 +9,7 @@ from app.models.blogpost import BlogPost
 import os
 from werkzeug.utils import secure_filename
 
-UPLOAD_FOLDER = 'app/static/uploads'
+UPLOAD_FOLDER = os.path.join("app", "static", "uploads")
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 def allowed_file(filename):
