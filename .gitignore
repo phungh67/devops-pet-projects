@@ -10,5 +10,7 @@ Desktop/*
 flask-university-admission/sandbox
 .venv/*
 .venv
+sandbox
+sandbox/*
 __pycache__/*
 __pycache__
