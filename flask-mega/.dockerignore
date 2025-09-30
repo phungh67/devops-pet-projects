@@ -1,6 +1,0 @@
-__pycache__/*
-app/__pycache__/*
-flask/*
-migrations/*
-.flaskenv
-app.db
