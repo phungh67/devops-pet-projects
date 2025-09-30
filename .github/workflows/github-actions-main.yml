@@ -31,3 +31,13 @@ jobs:
         - name: Get secret
           run: |
             echo "Deloying to ${{ needs.set-environment.outputs.current_env}} environment."
+        - name: Set up QEMU
+          uses: docker/setup-qemu-action@v3
+        - name: Set up Docker buildx
+          uses: docker/setup-buildx-action@v3
+        - name: Build and push
+          uses: docker/build-push-action@v6
+          with:
+            context: .
+            push: false
+            tags: user/app:latest
