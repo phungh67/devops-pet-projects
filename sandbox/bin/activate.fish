@@ -33,7 +33,7 @@ end
 # Unset irrelevant variables.
 deactivate nondestructive
 
-set -gx VIRTUAL_ENV /home/huyhoang-ph/devops-pet-projects/flask-university-admission/sandbox
+set -gx VIRTUAL_ENV /home/huyhoang-ph/devops-pet-projects/sandbox
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/"bin $PATH
