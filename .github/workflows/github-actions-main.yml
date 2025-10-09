@@ -52,7 +52,7 @@ jobs:
           aws-region: ${{ vars.AWS_REGION }}
           
           # The 'secrets' context is correct for environment secrets
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          role-to-assume: arn:aws:iam::713881826090:role/due1-openid-workflow-role
           role-session-name: ${{ steps.generate_session_name.outputs.name }}
 
       - name: Get caller identity
