@@ -1,4 +1,6 @@
+# <-- FIX: Correct YAML key for the workflow name
 name: Github-test-pipeline
+
 on:
   push:
     branches:
@@ -10,53 +12,60 @@ permissions:
   contents: read
 
 jobs:
-  set-environment: #check and set the appropriate environment
+  set-environment:
     runs-on: ubuntu-latest
-    outputs: #export the variable for other jobs to access
+    outputs:
       current_env: ${{ steps.set_env.outputs.current_env }}
     steps:
-      - name: Check if product
+      - name: Check if prod
         if: endsWith(github.ref, '/main')
-        run: |
-          echo "ENVIRONMENT_NAME=prod" >> $GITHUB_ENV
+        run: echo "ENVIRONMENT_NAME=prod" >> $GITHUB_ENV
+        
       - name: Check if dev
         if: endsWith(github.ref, '/dev')
-        run: |
-          echo "ENVIRONMENT_NAME=dev" >> $GITHUB_ENV
+        run: echo "ENVIRONMENT_NAME=dev" >> $GITHUB_ENV
+
       - name: Set the output
         id: set_env
-        run: echo "::set-output name=current_env::${{ env.ENVIRONMENT_NAME }}"
+        # <-- FIX: Use the modern, recommended way to set job outputs
+        run: echo "current_env=${{ env.ENVIRONMENT_NAME }}" >> $GITHUB_OUTPUT
   
   build-and-deploy:
-      runs-on: ubuntu-latest
-      needs: set-environment
-      environment: ${{ needs.set-environment.outputs.current_env }}
-      steps:
-        - name: Generate dynamic session name
-          id: generate_session_name
-          run: |
-            SESSION_NAME="${{ github.workflow }}-$(date +'%H-%M-%d-%m-%y')"
-            echo "name=$SESSION_NAME" >> $GITHUB_OUTPUT
-        - name: Get secret
-          run: |
-            echo "Deloying to ${{ needs.set-environment.outputs.current_env}} environment."
-        - name: Configure AWS credential
-          uses: aws-actions/configure-aws-credentials@v5.1.0
-          with:
-            audience: ${{ env.AWS_AUDIENCE }}
-            aws-region: ${{ env.AWS_REGION }}
-            role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
-            role-session-name: ${{ steps.generate_session_name.outputs.name }}
-        - name: get caller identity2
-          run: |
-            aws sts get-caller-identity
-        - name: Set up QEMU
-          uses: docker/setup-qemu-action@v3
-        - name: Set up Docker buildx
-          uses: docker/setup-buildx-action@v3
-        - name: Build and push
-          uses: docker/build-push-action@v6
-          with:
-            file: ./Dockerfile
-            push: false
-            tags: user/app:latest
+    runs-on: ubuntu-latest
+    needs: set-environment
+    environment: ${{ needs.set-environment.outputs.current_env }}
+    steps:
+      - name: Generate dynamic session name
+        id: generate_session_name
+        run: |
+          SESSION_NAME="${{ github.workflow }}-$(date +'%H-%M-%d-%m-%y')"
+          echo "name=$SESSION_NAME" >> $GITHUB_OUTPUT
+
+      - name: Deploying to Environment
+        run: echo "Deploying to ${{ needs.set-environment.outputs.current_env }} environment."
+
+      - name: Configure AWS credential
+        uses: aws-actions/configure-aws-credentials@v5.1.0
+        with:
+          # <-- FIX: Use the 'vars' context to get environment variables
+          audience: ${{ vars.AWS_AUDIENCE }}
+          aws-region: ${{ vars.AWS_REGION }}
+          
+          # The 'secrets' context is correct for environment secrets
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          role-session-name: ${{ steps.generate_session_name.outputs.name }}
+
+      - name: Get caller identity
+        run: aws sts get-caller-identity
+
+      # ... your docker steps continue here ...
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          file: ./Dockerfile
+          push: false
+          tags: user/app:latest
