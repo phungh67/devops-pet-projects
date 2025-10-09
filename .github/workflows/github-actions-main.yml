@@ -5,6 +5,10 @@ on:
       - main
       - dev
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   set-environment: #check and set the appropriate environment
     runs-on: ubuntu-latest
@@ -28,9 +32,24 @@ jobs:
       needs: set-environment
       environment: ${{ needs.set-environment.outputs.current_env }}
       steps:
+        - name: Generate dynamic session name
+          id: generate_session_name
+          run: |
+            SESSION_NAME="${{ github.workflow }}-$(date +'%H-%M-%d-%m-%y')"
+            echo "name=$SESSION_NAME" >> $GITHUB_OUTPUT
         - name: Get secret
           run: |
             echo "Deloying to ${{ needs.set-environment.outputs.current_env}} environment."
+        - name: Configure AWS credential
+          uses: aws-actions/configure-aws-credentials@v5.1.0
+          with:
+            audience: ${{ env.AWS_AUDIENCE }}
+            aws-region: ${{ env.AWS_REGION }}
+            role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+            role-session-name: ${{ steps.generate_session_name.outputs.name }}
+        - name: get caller identity2
+          run: |
+            aws sts get-caller-identity
         - name: Set up QEMU
           uses: docker/setup-qemu-action@v3
         - name: Set up Docker buildx
