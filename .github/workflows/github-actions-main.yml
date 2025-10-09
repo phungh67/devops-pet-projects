@@ -69,3 +69,30 @@ jobs:
           file: ./Dockerfile
           push: false
           tags: user/app:latest
+    
+  debug-oidc-token:
+    runs-on: ubuntu-latest
+    # This job needs no other permissions
+    permissions:
+      id-token: write
+
+    steps:
+      - name: Get OIDC Token
+        id: get_token
+        # We use the AWS action just to easily get the token output
+        uses: aws-actions/configure-aws-credentials@v5.1.0
+        with:
+          # Use a dummy role and region, we only care about the token
+          role-to-assume: arn:aws:iam::123456789012:role/dummy-role-for-debug
+          aws-region: us-east-1
+          # !! IMPORTANT !! Set this to the exact same audience as your real job
+          audience: sts.amazonaws.com
+
+      - name: Decode and Print OIDC Token Payload
+        # This step runs even if the step above fails, so we can see the token
+        if: always()
+        run: |
+          echo "--- OIDC Token Payload ---"
+          token_payload=$(echo "${{ steps.get_token.outputs.aws-oidc-token }}" | cut -d '.' -f 2 | base64 --decode)
+          echo "$token_payload" | jq .
+          echo "--------------------------"
