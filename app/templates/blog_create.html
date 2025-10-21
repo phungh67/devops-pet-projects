@@ -11,13 +11,13 @@
 
         <div class="mb-3">
             <label for="content">Content</label>
-            <!-- SimpleMDE replaces this -->
             <textarea id="content" name="content"></textarea>
         </div>
 
         <div class="mb-3">
             <label for="image">Attach Image</label>
-            <input type="file" class="form-control" name="image">
+            <input type="file" class="form-control" name="image" id="image" onchange="previewImage(event)">
+            <img id="image-preview" src="#" alt="Image Preview" class="img-fluid mt-2" style="display: none; max-height: 200px;"/>
         </div>
 
         <button type="submit" class="btn btn-primary">Create</button>
@@ -26,10 +26,36 @@
 {% endblock %}
 
 {% block scripts %}
-<!-- SimpleMDE Markdown editor -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
 <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
 <script>
+    // 1. Initialize the editor
     var simplemde = new SimpleMDE({ element: document.getElementById("content") });
+
+    // 2. Add client-side validation for the editor
+    var blogForm = document.querySelector('form');
+    blogForm.addEventListener('submit', function(event) {
+        if (simplemde.value().trim() === '') {
+            alert('Please add some content to your post!');
+            event.preventDefault(); // Stop the form from submitting
+        }
+    });
+
+    // 3. Add the image preview function
+    function previewImage(event) {
+        var reader = new FileReader();
+        var imageField = document.getElementById("image-preview");
+
+        reader.onload = function() {
+            if (reader.readyState == 2) {
+                imageField.style.display = 'block';
+                imageField.src = reader.result;
+            }
+        }
+
+        if (event.target.files[0]) {
+            reader.readAsDataURL(event.target.files[0]);
+        }
+    }
 </script>
 {% endblock %}
