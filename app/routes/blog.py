@@ -8,6 +8,7 @@ from app.models.blogpost import BlogPost
 
 import os
 from werkzeug.utils import secure_filename
+from uuid import uuid4
 
 UPLOAD_FOLDER = os.path.join("app", "static", "uploads")
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
@@ -66,7 +67,11 @@ def create_post():
         
         filename = None
         if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
+        # Generate a unique filename to prevent overwrites
+            unique_id = uuid4().hex
+            original_filename = secure_filename(file.filename)
+            filename = f"{unique_id}_{original_filename}"
+    
             file.save(os.path.join(UPLOAD_FOLDER, filename))
 
         # Handling post type

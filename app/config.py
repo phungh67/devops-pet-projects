@@ -8,6 +8,8 @@ class Config:
     # Default fallback to SQLite if nothing is set
     SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL", "sqlite:///dev.db")
 
+    MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16 Megabytes
+
 
 class DevConfig(Config):
     DEBUG = True
