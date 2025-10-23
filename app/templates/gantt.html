@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block head %}
+<style>
+    /* Basic styling for the chart container */
+    .gantt-container {
+        padding: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Application Deadlines - Gantt Chart View</h2>
+    <div class="gantt-container">
+        <svg id="gantt"></svg>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/frappe-gantt@0.6.1/dist/frappe-gantt.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/frappe-gantt@0.6.1/dist/frappe-gantt.min.css">
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // 2. Fetch the data from your new API endpoint
+        fetch("{{ url_for('events.list_events_gantt_json') }}")
+            .then(response => response.json())
+            .then(tasks => {
+                if (tasks.length > 0) {
+                    // 3. Initialize Frappe Gantt with the fetched tasks
+                    var gantt = new Gantt("#gantt", tasks, {
+                        // You can customize options here
+                        header_height: 50,
+                        bar_height: 25,
+                        view_mode: 'Month', // Can be 'Day', 'Week', 'Month'
+                        date_format: 'YYYY-MM-DD'
+                    });
+                } else {
+                    document.querySelector(".gantt-container").innerHTML = "<p>No events to display.</p>";
+                }
+            })
+            .catch(error => console.error('Error fetching Gantt data:', error));
+    });
+</script>
+{% endblock %}

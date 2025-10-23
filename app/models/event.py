@@ -14,6 +14,8 @@ class Event(db.Model):
 
     degree_level = db.Column(db.String(50), nullable=False)
 
+    start_date = db.Column(db.Date, nullable=False)
+
     deadline = db.Column(db.Date, nullable=False)
     description = db.Column(db.Text, nullable=True)
     source_url = db.Column(db.String(300), nullable=True)

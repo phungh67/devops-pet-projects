@@ -34,3 +34,26 @@ def list_events_json():
 def calendar_view():
     events = Event.query.order_by(Event.deadline).all()
     return render_template("events/calendar.html", events=events)
+
+@events_bp.route("/api/gantt", methods=["GET"])
+def list_events_gantt_json():
+    events = Event.query.all()
+    
+    # Format data specifically for Frappe Gantt
+    tasks = [
+        {
+            "id": str(e.id),
+            "name": e.title,
+            "start": e.start_date.strftime("%Y-%m-%d"),
+            "end": e.deadline.strftime("%Y-%m-%d"),
+            "progress": 50,  # You can make this dynamic later
+        }
+        for e in events
+    ]
+    return jsonify(tasks)
+
+# In: app/routes/events.py
+
+@events_bp.route("/gantt", methods=["GET"])
+def gantt_view():
+    return render_template("events/gantt.html")
