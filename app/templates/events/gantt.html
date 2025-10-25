@@ -5,34 +5,53 @@
     /* Basic styling for the chart container */
     .gantt-container {
         padding: 20px;
+        position: relative; /* Needed for the custom popup */
     }
 
-    /* Custom Gantt Popup Styling */
-    .gantt-custom-popup {
-        background: #333; /* Dark background */
+    /* NEW: This is the 'click-to-open' popup container 
+    */
+    #gantt-custom-popup {
+        position: fixed; /* Floats on top of the page */
+        background: #333;
         color: #fff;
-        padding: 10px 15px;
+        padding: 15px;
         border-radius: 5px;
-        box-shadow: 0 3px 8px rgba(0,0,0,0.2);
-        width: 250px; /* Give it a set width */
-        z-index: 10;
-        position: relative;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        width: 250px;
+        z-index: 1000;
+        display: none; /* Hidden by default */
     }
-    .gantt-custom-popup h5 {
+    #gantt-custom-popup h5 {
         margin: 0 0 5px 0;
         font-size: 1.1em;
         color: #fff;
     }
-    .gantt-custom-popup p {
+    #gantt-custom-popup p {
         margin: 5px 0;
         font-size: 0.9em;
     }
-    .gantt-custom-popup a {
-        color: #4dbbff; /* Bright link color */
+    #gantt-custom-popup a {
+        color: #4dbbff;
         text-decoration: none;
     }
-    .gantt-custom-popup a:hover {
+    #gantt-custom-popup a:hover {
         text-decoration: underline;
+    }
+
+    /* NEW: Styling for the 'X' close button 
+    */
+    #gantt-popup-close {
+        position: absolute;
+        top: 5px;
+        right: 10px;
+        font-size: 20px;
+        color: #fff;
+        cursor: pointer;
+        font-family: Arial, sans-serif;
+        font-weight: bold;
+    }
+    #gantt-popup-close:hover {
+        color: #ccc;
     }
 </style>
 {% endblock %}
@@ -43,6 +62,8 @@
     <div class="gantt-container">
         <svg id="gantt"></svg>
     </div>
+
+    <div id="gantt-custom-popup" style="display: none;"></div>
 </div>
 {% endblock %}
 
@@ -52,41 +73,63 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        // 2. Fetch the data from your new API endpoint
+        // Get the custom popup element
+        const popup = document.getElementById('gantt-custom-popup');
+
         fetch("{{ url_for('events.list_events_gantt_json') }}")
             .then(response => response.json())
             .then(tasks => {
                 if (tasks.length > 0) {
-                    // 3. Initialize Frappe Gantt with the fetched tasks
                     var gantt = new Gantt("#gantt", tasks, {
-                        // You can customize options here
+                        // ... your existing options
                         header_height: 50,
                         bar_height: 25,
-                        view_mode: 'Month', // Can be 'Day', 'Week', 'Month'
+                        view_mode: 'Month',
                         date_format: 'YYYY-MM-DD',
+                        
+                        // 1. REMOVED the 'custom_popup_html' function
 
-                        // --- THIS IS THE NEW OPTION ---
-                        custom_popup_html: function(task) {
-                            // Format the dates for display
+                        // 2. ADDED the 'on_click' event handler
+                        on_click: function (task) {
+                            // Format dates
                             const startDate = new Date(task.start).toLocaleDateString();
                             const endDate = new Date(task.end).toLocaleDateString();
 
-                            // Create the link HTML (only if source_url exists)
+                            // Create link HTML
                             const link = task.source_url 
                                 ? `<a href="${task.source_url}" target="_blank">View Source</a>` 
                                 : '<span>No link available</span>';
 
-                            // Build the custom HTML for the popup
-                            return `
-                                <div class="gantt-custom-popup">
-                                    <h5>${task.name}</h5>
-                                    <p><strong>Dates:</strong> ${startDate} - ${endDate}</p>
-                                    <p>${link}</p>
-                                </div>
+                            // Build the custom HTML with an 'X' button
+                            popup.innerHTML = `
+                                <span id="gantt-popup-close">&times;</span>
+                                <h5>${task.name}</h5>
+                                <p><strong>Dates:</strong> ${startDate} - ${endDate}</p>
+                                <p>${link}</p>
                             `;
+                            
+                            // Position and show the popup near the mouse click
+                            popup.style.left = (event.clientX) + 'px';
+                            popup.style.top = (event.clientY + 10) + 'px';
+                            popup.style.display = 'block';
+
+                            // 3. Add a click listener *inside* this function 
+                            //    for the new 'X' button
+                            document.getElementById('gantt-popup-close').onclick = function() {
+                                popup.style.display = 'none';
+                            };
                         }
-                        // ------------------------------
                     });
+
+                    // 4. (Optional but good UX) 
+                    //    Close the popup if the user clicks anywhere else
+                    document.addEventListener('click', function(event) {
+                        // Check if the click is outside the popup and not on a gantt bar
+                        if (!popup.contains(event.target) && !event.target.closest('.bar-wrapper')) {
+                            popup.style.display = 'none';
+                        }
+                    }, true);
+
                 } else {
                     document.querySelector(".gantt-container").innerHTML = "<p>No events to display.</p>";
                 }
