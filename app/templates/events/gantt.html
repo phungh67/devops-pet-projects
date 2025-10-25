@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block head %}
+<style>
+    /* Basic styling for the chart container */
+    .gantt-container {
+        padding: 20px;
+    }
+
+    /* Custom Gantt Popup Styling */
+    .gantt-custom-popup {
+        background: #333; /* Dark background */
+        color: #fff;
+        padding: 10px 15px;
+        border-radius: 5px;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+        width: 250px; /* Give it a set width */
+        z-index: 10;
+        position: relative;
+    }
+    .gantt-custom-popup h5 {
+        margin: 0 0 5px 0;
+        font-size: 1.1em;
+        color: #fff;
+    }
+    .gantt-custom-popup p {
+        margin: 5px 0;
+        font-size: 0.9em;
+    }
+    .gantt-custom-popup a {
+        color: #4dbbff; /* Bright link color */
+        text-decoration: none;
+    }
+    .gantt-custom-popup a:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Application Deadlines - Gantt Chart View</h2>
+    <div class="gantt-container">
+        <svg id="gantt"></svg>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/frappe-gantt@0.6.1/dist/frappe-gantt.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/frappe-gantt@0.6.1/dist/frappe-gantt.min.css">
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // 2. Fetch the data from your new API endpoint
+        fetch("{{ url_for('events.list_events_gantt_json') }}")
+            .then(response => response.json())
+            .then(tasks => {
+                if (tasks.length > 0) {
+                    // 3. Initialize Frappe Gantt with the fetched tasks
+                    var gantt = new Gantt("#gantt", tasks, {
+                        // You can customize options here
+                        header_height: 50,
+                        bar_height: 25,
+                        view_mode: 'Month', // Can be 'Day', 'Week', 'Month'
+                        date_format: 'YYYY-MM-DD',
+
+                        // --- THIS IS THE NEW OPTION ---
+                        custom_popup_html: function(task) {
+                            // Format the dates for display
+                            const startDate = new Date(task.start).toLocaleDateString();
+                            const endDate = new Date(task.end).toLocaleDateString();
+
+                            // Create the link HTML (only if source_url exists)
+                            const link = task.source_url 
+                                ? `<a href="${task.source_url}" target="_blank">View Source</a>` 
+                                : '<span>No link available</span>';
+
+                            // Build the custom HTML for the popup
+                            return `
+                                <div class="gantt-custom-popup">
+                                    <h5>${task.name}</h5>
+                                    <p><strong>Dates:</strong> ${startDate} - ${endDate}</p>
+                                    <p>${link}</p>
+                                </div>
+                            `;
+                        }
+                        // ------------------------------
+                    });
+                } else {
+                    document.querySelector(".gantt-container").innerHTML = "<p>No events to display.</p>";
+                }
+            })
+            .catch(error => console.error('Error fetching Gantt data:', error));
+    });
+</script>
+{% endblock %}
