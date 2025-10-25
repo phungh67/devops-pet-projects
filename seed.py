@@ -5,13 +5,14 @@ from app.models.event import Event
 from app.models.blogpost import BlogPost
 
 
-def seed():
-    app = create_app("dev")  # use your dev config
+def seed(config_name="dev"):  # Allow passing in a config name
+    app = create_app(config_name)  # Use the config
     with app.app_context():
         db.drop_all()
         db.create_all()
 
         # --- Users ---
+        # Add all required fields: degree, school, cpa
         admin = User(
             name="Admin User",
             email="admin@example.com",
@@ -22,7 +23,7 @@ def seed():
             country_origin="Germany",
             role="admin",
         )
-        admin.set_password("admin123")  # ✅ hash password
+        admin.set_password("admin123")
 
         student = User(
             name="Student User",
@@ -34,7 +35,7 @@ def seed():
             country_origin="France",
             role="student",
         )
-        student.set_password("student123")  # ✅ hash password
+        student.set_password("student123")
 
         db.session.add_all([admin, student])
         db.session.commit()
@@ -44,7 +45,8 @@ def seed():
             title="Master Scholarship at TU Berlin",
             university="Technische Universität Berlin",
             country="Germany",
-            degree_level="Master",   # ✅ match field name in model
+            degree_level="Master",
+            start_date=date.today() + timedelta(days=1),  # Add start_date
             deadline=date.today() + timedelta(days=30),
             description="Full scholarship for international students.",
             source_url="https://www.tu-berlin.de/scholarship",
@@ -55,6 +57,7 @@ def seed():
             university="Various Universities",
             country="EU",
             degree_level="Master",
+            start_date=date.today() + timedelta(days=15),  # Add start_date
             deadline=date.today() + timedelta(days=60),
             description="Erasmus Mundus funded joint master program.",
             source_url="https://erasmus-plus.ec.europa.eu/",
@@ -81,8 +84,8 @@ def seed():
         db.session.add_all([b1, b2])
         db.session.commit()
 
-        print("✅ Database seeded successfully!")
+        print(f"✅ Database seeded successfully for '{config_name}'!")
 
 
 if __name__ == "__main__":
-    seed()
+    seed()  # Defaults to "dev"
