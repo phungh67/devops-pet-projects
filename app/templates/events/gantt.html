@@ -19,13 +19,16 @@
     document.addEventListener("DOMContentLoaded", function() {
         // Get the custom popup element
         const popup = document.getElementById('gantt-custom-popup');
+        
+        // --- NEW ---
+        // This variable will temporarily hold the task data when a bar is clicked
+        let activeTask = null; 
 
-        // --- IMPROVEMENT ---
-        // Add ONE event listener to the popup.
-        // This will catch clicks on the 'x' button when it's created.
+        // This event listener handles closing the popup via the 'x'
         popup.addEventListener('click', function(event) {
             if (event.target.id === 'gantt-popup-close') {
                 popup.style.display = 'none';
+                activeTask = null; // Clear the active task
             }
         });
 
@@ -41,40 +44,49 @@
                         view_mode: 'Month',
                         date_format: 'YYYY-MM-DD',
                         
-                        // 4. Use 'on_click' to populate and show the popup
+                        // 4. --- MODIFIED ---
+                        // on_click now *only* saves the task data.
+                        // It doesn't try to show the popup.
                         on_click: function (task) {
-                            // Format dates
-                            const startDate = new Date(task.start).toLocaleDateString();
-                            const endDate = new Date(task.end).toLocaleDateString();
+                            activeTask = task; // Store the clicked task's data
+                        }
+                    });
 
-                            // Create link HTML
-                            const link = task.source_url 
-                                ? `<a href="${task.source_url}" target="_blank">View Source</a>` 
+                    // 5. --- MODIFIED ---
+                    // This global click listener handles *all* popup logic
+                    document.addEventListener('click', function(event) {
+                        
+                        // Check if the click was ON a gantt bar AND we have task data
+                        if (event.target.closest('.bar-wrapper') && activeTask) {
+                            // A bar was clicked! Now we build and show the popup.
+                            const startDate = new Date(activeTask.start).toLocaleDateString();
+                            const endDate = new Date(activeTask.end).toLocaleDateString();
+                            const link = activeTask.source_url 
+                                ? `<a href="${activeTask.source_url}" target="_blank">View Source</a>` 
                                 : '<span>No link available</span>';
 
-                            // Build the custom HTML with the 'X' button
+                            // Build the HTML with the 'X' button
                             popup.innerHTML = `
                                 <span id="gantt-popup-close">&times;</span>
-                                <h5>${task.name}</h5>
+                                <h5>${activeTask.name}</h5>
                                 <p><strong>Dates:</strong> ${startDate} - ${endDate}</p>
                                 <p>${link}</p>
                             `;
                             
-                            // Position and show the popup near the mouse
+                            // Position and show the popup using the 'event'
+                            // variable, which is correctly defined here.
                             popup.style.left = (event.clientX + 5) + 'px';
                             popup.style.top = (event.clientY + 5) + 'px';
                             popup.style.display = 'block';
-                        }
-                    });
 
-                    // 5. Add a global click listener to close the popup
-                    //    if the user clicks anywhere else on the page.
-                    document.addEventListener('click', function(event) {
-                        // Check if the click is outside the popup AND
-                        // not on a gantt bar (which would re-open it)
-                        if (!popup.contains(event.target) && !event.target.closest('.bar-wrapper')) {
+                            // Clear the task so it doesn't re-trigger
+                            activeTask = null; 
+                        
+                        } else if (!popup.contains(event.target)) {
+                            // If the click was *outside* the popup, hide it
                             popup.style.display = 'none';
                         }
+                        
                     }, true); // Use 'true' for capture phase
 
                 } else {
