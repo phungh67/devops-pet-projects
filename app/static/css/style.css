@@ -96,3 +96,51 @@ article h3 {
 .navbar a:hover {
   text-decoration: underline;
 }
+
+#gantt-custom-popup {
+    position: fixed; /* Floats on top of the page */
+    background: #333;
+    color: #fff;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    width: 250px;
+    z-index: 1000; /* Ensures it's on top of other elements */
+    display: none; /* Hidden by default */
+}
+
+#gantt-custom-popup h5 {
+    margin: 0 0 5px 0;
+    font-size: 1.1em;
+    color: #fff;
+}
+
+#gantt-custom-popup p {
+    margin: 5px 0;
+    font-size: 0.9em;
+}
+
+#gantt-custom-popup a {
+    color: #4dbbff; /* Bright link color */
+    text-decoration: none;
+}
+
+#gantt-custom-popup a:hover {
+    text-decoration: underline;
+}
+
+/* Styling for the 'X' close button */
+#gantt-popup-close {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    font-size: 20px;
+    color: #fff;
+    cursor: pointer;
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+}
+
+#gantt-popup-close:hover {
+    color: #ccc;
+}

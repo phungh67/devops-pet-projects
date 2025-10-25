@@ -1,61 +1,5 @@
 {% extends "base.html" %}
 
-{% block head %}
-<style>
-    /* Basic styling for the chart container */
-    .gantt-container {
-        padding: 20px;
-        position: relative; /* Needed for the custom popup */
-    }
-
-    /* NEW: This is the 'click-to-open' popup container 
-    */
-    #gantt-custom-popup {
-        position: fixed; /* Floats on top of the page */
-        background: #333;
-        color: #fff;
-        padding: 15px;
-        border-radius: 5px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        width: 250px;
-        z-index: 1000;
-        display: none; /* Hidden by default */
-    }
-    #gantt-custom-popup h5 {
-        margin: 0 0 5px 0;
-        font-size: 1.1em;
-        color: #fff;
-    }
-    #gantt-custom-popup p {
-        margin: 5px 0;
-        font-size: 0.9em;
-    }
-    #gantt-custom-popup a {
-        color: #4dbbff;
-        text-decoration: none;
-    }
-    #gantt-custom-popup a:hover {
-        text-decoration: underline;
-    }
-
-    /* NEW: Styling for the 'X' close button 
-    */
-    #gantt-popup-close {
-        position: absolute;
-        top: 5px;
-        right: 10px;
-        font-size: 20px;
-        color: #fff;
-        cursor: pointer;
-        font-family: Arial, sans-serif;
-        font-weight: bold;
-    }
-    #gantt-popup-close:hover {
-        color: #ccc;
-    }
-</style>
-{% endblock %}
-
 {% block content %}
 <div class="container">
     <h2>Application Deadlines - Gantt Chart View</h2>
@@ -63,7 +7,7 @@
         <svg id="gantt"></svg>
     </div>
 
-    <div id="gantt-custom-popup" style="display: none;"></div>
+    <div id="gantt-custom-popup"></div>
 </div>
 {% endblock %}
 
@@ -76,20 +20,28 @@
         // Get the custom popup element
         const popup = document.getElementById('gantt-custom-popup');
 
+        // --- IMPROVEMENT ---
+        // Add ONE event listener to the popup.
+        // This will catch clicks on the 'x' button when it's created.
+        popup.addEventListener('click', function(event) {
+            if (event.target.id === 'gantt-popup-close') {
+                popup.style.display = 'none';
+            }
+        });
+
+        // 2. Fetch the data from your new API endpoint
         fetch("{{ url_for('events.list_events_gantt_json') }}")
             .then(response => response.json())
             .then(tasks => {
                 if (tasks.length > 0) {
+                    // 3. Initialize Frappe Gantt
                     var gantt = new Gantt("#gantt", tasks, {
-                        // ... your existing options
                         header_height: 50,
                         bar_height: 25,
                         view_mode: 'Month',
                         date_format: 'YYYY-MM-DD',
                         
-                        // 1. REMOVED the 'custom_popup_html' function
-
-                        // 2. ADDED the 'on_click' event handler
+                        // 4. Use 'on_click' to populate and show the popup
                         on_click: function (task) {
                             // Format dates
                             const startDate = new Date(task.start).toLocaleDateString();
@@ -100,7 +52,7 @@
                                 ? `<a href="${task.source_url}" target="_blank">View Source</a>` 
                                 : '<span>No link available</span>';
 
-                            // Build the custom HTML with an 'X' button
+                            // Build the custom HTML with the 'X' button
                             popup.innerHTML = `
                                 <span id="gantt-popup-close">&times;</span>
                                 <h5>${task.name}</h5>
@@ -108,27 +60,22 @@
                                 <p>${link}</p>
                             `;
                             
-                            // Position and show the popup near the mouse click
-                            popup.style.left = (event.clientX) + 'px';
-                            popup.style.top = (event.clientY + 10) + 'px';
+                            // Position and show the popup near the mouse
+                            popup.style.left = (event.clientX + 5) + 'px';
+                            popup.style.top = (event.clientY + 5) + 'px';
                             popup.style.display = 'block';
-
-                            // 3. Add a click listener *inside* this function 
-                            //    for the new 'X' button
-                            document.getElementById('gantt-popup-close').onclick = function() {
-                                popup.style.display = 'none';
-                            };
                         }
                     });
 
-                    // 4. (Optional but good UX) 
-                    //    Close the popup if the user clicks anywhere else
+                    // 5. Add a global click listener to close the popup
+                    //    if the user clicks anywhere else on the page.
                     document.addEventListener('click', function(event) {
-                        // Check if the click is outside the popup and not on a gantt bar
+                        // Check if the click is outside the popup AND
+                        // not on a gantt bar (which would re-open it)
                         if (!popup.contains(event.target) && !event.target.closest('.bar-wrapper')) {
                             popup.style.display = 'none';
                         }
-                    }, true);
+                    }, true); // Use 'true' for capture phase
 
                 } else {
                     document.querySelector(".gantt-container").innerHTML = "<p>No events to display.</p>";

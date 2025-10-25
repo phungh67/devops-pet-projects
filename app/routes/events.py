@@ -47,6 +47,7 @@ def list_events_gantt_json():
             "start": e.start_date.strftime("%Y-%m-%d"),
             "end": e.deadline.strftime("%Y-%m-%d"),
             "progress": 50,  # You can make this dynamic later
+            "source_url": e.source_url
         }
         for e in events
     ]
