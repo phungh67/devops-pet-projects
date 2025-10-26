@@ -17,8 +17,17 @@
         <div class="mb-3">
             <label for="image">Attach Image</label>
             <input type="file" class="form-control" name="image" id="image" onchange="previewImage(event)">
-            <img id="image-preview" src="#" alt="Image Preview" class="img-fluid mt-2" style="display: none; max-height: 200px;"/>
+            <img id="image-preview" src="#" alt="Image Preview" class="img-fluid mt-2"
+                style="display: none; max-height: 200px;" />
         </div>
+
+        <div class="mb-3">
+            <label for="tags">Tags (comma-separated)</label>
+            <input type="text" class="form-control" id="tags" name="tags"
+                placeholder="e.g. flask, python, scholarships">
+        </div>
+
+        <button type="submit" class="btn btn-primary">Create</button>
 
         <button type="submit" class="btn btn-primary">Create</button>
     </form>
@@ -34,7 +43,7 @@
 
     // 2. Add client-side validation for the editor
     var blogForm = document.querySelector('form');
-    blogForm.addEventListener('submit', function(event) {
+    blogForm.addEventListener('submit', function (event) {
         if (simplemde.value().trim() === '') {
             alert('Please add some content to your post!');
             event.preventDefault(); // Stop the form from submitting
@@ -46,7 +55,7 @@
         var reader = new FileReader();
         var imageField = document.getElementById("image-preview");
 
-        reader.onload = function() {
+        reader.onload = function () {
             if (reader.readyState == 2) {
                 imageField.style.display = 'block';
                 imageField.src = reader.result;

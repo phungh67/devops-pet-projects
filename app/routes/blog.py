@@ -5,6 +5,7 @@ from flask import Blueprint, render_template, jsonify, redirect, url_for, flash,
 from flask_login import login_required, current_user
 from app.extenisions import db
 from app.models.blogpost import BlogPost
+from app.models.tag import Tag
 
 import os
 from werkzeug.utils import secure_filename
@@ -60,21 +61,13 @@ def create_post():
         title = request.form.get("title")
         content = request.form.get("content")
         file = request.files.get("image")
-
-        if not title or not content:
-            flash("⚠️ Title and content are required", "warning")
-            return redirect(url_for("blog.create_post"))
         
-        filename = None
-        if file and allowed_file(file.filename):
-        # Generate a unique filename to prevent overwrites
-            unique_id = uuid4().hex
-            original_filename = secure_filename(file.filename)
-            filename = f"{unique_id}_{original_filename}"
-    
-            file.save(os.path.join(UPLOAD_FOLDER, filename))
+        # --- GET THE TAGS STRING ---
+        tags_string = request.form.get("tags")
 
-        # Handling post type
+        # ... (your existing title/content check) ...
+        # ... (your existing file/filename logic) ...
+
         post_type = 1 if current_user.role == "admin" else 2
 
         new_post = BlogPost(
@@ -82,8 +75,25 @@ def create_post():
             content=content,
             author_id=current_user.id,
             post_type=post_type,
-            image_path=filename
+            image_path=file
         )
+        
+        # --- ADD THIS TAG PROCESSING LOGIC ---
+        if tags_string:
+            # Clean up tag names
+            tag_names = [name.strip().lower() for name in tags_string.split(',') if name.strip()]
+            
+            for name in tag_names:
+                # Find tag or create it if it doesn't exist
+                tag = Tag.query.filter_by(name=name).first()
+                if not tag:
+                    tag = Tag(name=name)
+                    db.session.add(tag)
+                
+                # Append the tag to the post
+                new_post.tags.append(tag)
+        
+        # Now add and commit everything
         db.session.add(new_post)
         db.session.commit()
         flash("✅ Post created!", "success")
@@ -107,4 +117,13 @@ def delete_post(post_id):
     flash("✅ Post deleted.", "success")
     return redirect(url_for("blog.blog_list_view"))
 
-
+@blog_bp.route("/tag/<string:tag_name>")
+def posts_by_tag(tag_name):
+    """Show all posts associated with a specific tag."""
+    tag = Tag.query.filter_by(name=tag_name).first_or_404()
+    
+    # 'posts' is the relationship, we can query it directly
+    posts = tag.posts.order_by(BlogPost.created_at.desc()).all()
+    
+    # We can reuse the main list.html template
+    return render_template("blog/list.html", posts=posts, tag=tag)
