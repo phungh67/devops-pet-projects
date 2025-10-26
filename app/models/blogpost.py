@@ -2,6 +2,7 @@
 
 from datetime import datetime
 from ..extenisions import db
+from .tag import post_tags
 
 
 class BlogPost(db.Model):
@@ -24,6 +25,11 @@ class BlogPost(db.Model):
 
     # add new property to allow pictures/images in blog posts
     image_path = db.Column(db.String(255), nullable=True)
+
+    # Relationship with the tag, to sort easier
+    tags = db.relationship('Tag', secondary=post_tags,
+                            back_populates='posts', lazy='dynamic')
+    
 
     @property
     def is_admin_post(self):
