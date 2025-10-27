@@ -70,13 +70,24 @@ def create_post():
 
         post_type = 1 if current_user.role == "admin" else 2
 
+        filename = None # <-- 1. Initialize filename as None    
+        if file and allowed_file(file.filename):
+            # 2. Create the unique filename
+                unique_id = uuid4().hex
+                original_filename = secure_filename(file.filename)
+                filename = f"{unique_id}_{original_filename}"
+            
+            # 3. Save the file
+                file.save(os.path.join(UPLOAD_FOLDER, filename))
+        
+
         new_post = BlogPost(
-            title=title,
-            content=content,
-            author_id=current_user.id,
-            post_type=post_type,
-            image_path=file
-        )
+                title=title,
+                content=content,
+                author_id=current_user.id,
+                post_type=post_type,
+                image_path=filename  # <-- 4. Use 'filename' here, not 'file'
+            )
         
         # --- ADD THIS TAG PROCESSING LOGIC ---
         if tags_string:
