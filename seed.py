@@ -3,6 +3,7 @@ from app import create_app, db
 from app.models.user import User
 from app.models.event import Event
 from app.models.blogpost import BlogPost
+from app.models.tag import Tag  # --- 1. IMPORT THE TAG MODEL ---
 
 
 def seed(config_name="dev"):  # Allow passing in a config name
@@ -49,7 +50,7 @@ def seed(config_name="dev"):  # Allow passing in a config name
             start_date=date.today() + timedelta(days=1),  # Add start_date
             deadline=date.today() + timedelta(days=30),
             description="Full scholarship for international students.",
-            source_url="https://www.tu-berlin.de/scholarship",
+            source_url="https.www.tu-berlin.de/scholarship",
         )
 
         e2 = Event(
@@ -65,20 +66,34 @@ def seed(config_name="dev"):  # Allow passing in a config name
 
         db.session.add_all([e1, e2])
         db.session.commit()
+        
+        # --- 2. CREATE TAGS ---
+        tag_scholarships = Tag(name="scholarships")
+        tag_eu = Tag(name="eu")
+        tag_germany = Tag(name="germany")
+        tag_guide = Tag(name="guide")
+
+        # Add tags to session
+        db.session.add_all([tag_scholarships, tag_eu, tag_germany, tag_guide])
+
 
         # --- Blog Posts ---
         b1 = BlogPost(
             title="How to Apply for EU Scholarships",
             content="Step-by-step guide for EU-based scholarships.",
             author_id=admin.id,
-            post_type=2
+            post_type=2,
+            # --- 3. ASSOCIATE TAGS ---
+            tags=[tag_scholarships, tag_eu, tag_guide]
         )
 
         b2 = BlogPost(
             title="Top 5 Universities in Germany",
             content="An overview of the best German universities for Masters.",
             author_id=admin.id,
-            post_type=1
+            post_type=1,
+            # --- 3. ASSOCIATE TAGS ---
+            tags=[tag_scholarships, tag_germany]
         )
 
         db.session.add_all([b1, b2])
