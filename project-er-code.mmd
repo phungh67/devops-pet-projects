@@ -1,0 +1,98 @@
+erDiagram
+    users {
+        int id PK
+        string name
+        string email
+        string password_hash
+        string role
+        string degree
+        string study_field
+        float cpa
+        string country_origin
+    }
+
+    blog_posts {
+        int id PK
+        string title
+        text content
+        int author_id FK
+        int post_type
+        string image_path
+    }
+
+    tags {
+        int id PK
+        string name
+    }
+
+    post_tags {
+        int post_id PK, FK
+        int tag_id PK, FK
+    }
+
+    countries {
+        int id PK
+        string name
+        string country_code
+    }
+
+    universities {
+        int id PK
+        string name
+        int country_id FK
+    }
+
+    programs {
+        int id PK
+        string title
+        string program_type
+        string degree_level
+        date deadline
+        int university_id FK "Nullable"
+    }
+    
+    bookmark {
+        int id PK
+        int user_id FK
+        int program_id FK
+        datetime created_at
+    }
+
+    requirement_sets {
+        int id PK
+        string name
+        int program_id FK
+        string degree_type_required
+        int years_experience_required
+    }
+
+    documents {
+        int id PK
+        string name
+        text description
+    }
+
+    requirement_documents {
+        int requirement_set_id PK, FK
+        int document_id PK, FK
+    }
+
+    %% --- Defining The Relationships ---
+
+    %% User Relationships
+    users ||--o{ blog_posts : "authors"
+    users ||--o{ bookmark : "has"
+
+    %% Country/University/Program Chain
+    countries    ||--o{ universities : "hosts"
+    universities ||--o{ programs : "offers"
+    programs     ||--o{ requirement_sets : "has"
+    programs     ||--o{ bookmark : "has"
+
+    %% Blog M2M (Many-to-Many)
+    blog_posts }o--|| post_tags : "links_to"
+    tags       }o--|| post_tags : "links_to"
+
+    %% Requirements M2M (Many-to-Many)
+    requirement_sets }o--|| requirement_documents : "links_to"
+    documents        }o--|| requirement_documents : "links_to"
