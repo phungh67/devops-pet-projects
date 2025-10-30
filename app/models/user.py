@@ -14,10 +14,14 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
 
-    degree = db.Column(db.String(50), nullable=False)
-    school = db.Column(db.String(200), nullable=False)
+    # --- MODIFIED: Made these nullable=True ---
+    # Admin users don't need to provide this info.
+    degree = db.Column(db.String(50), nullable=True)
+    school = db.Column(db.String(200), nullable=True)
+    cpa = db.Column(db.Float, nullable=True)
+    # --- END MODIFICATION ---
+    
     ranking = db.Column(db.Float, nullable=True)   # percentile or relative score
-    cpa = db.Column(db.Float, nullable=False)
     study_field = db.Column(db.String(120), nullable=True)
 
     country_origin = db.Column(db.String(100), nullable=True)
@@ -44,3 +48,4 @@ class User(UserMixin, db.Model):
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+

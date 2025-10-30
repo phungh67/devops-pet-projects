@@ -17,6 +17,7 @@ class Document(db.Model):
     name = db.Column(db.String(100), unique=True, nullable=False)
     description = db.Column(db.Text, nullable=True)
     
+    # This relationship links Documents back to the sets they are part of
     requirement_sets = db.relationship(
         'RequirementSet', 
         secondary=requirement_documents_association,
@@ -47,9 +48,16 @@ class RequirementSet(db.Model):
     # (e.g., "Engineering", "Researcher")
     career_type = db.Column(db.String(100), nullable=True)
     years_experience_required = db.Column(db.Integer, default=0)
+    
+    # General description field
+    description = db.Column(db.Text, nullable=True)
+
 
     # Relationships
+    # This links a RequirementSet back to its parent Program
     program = db.relationship('Program', back_populates='requirement_sets')
+    
+    # This links a RequirementSet to all the Documents it requires
     documents = db.relationship(
         'Document', 
         secondary=requirement_documents_association,
@@ -59,3 +67,4 @@ class RequirementSet(db.Model):
 
     def __repr__(self):
         return f'<RequirementSet {self.name} for Program {self.program_id}>'
+
