@@ -18,14 +18,10 @@ def seed(config_name="dev"):  # Allow passing in a config name
         db.create_all()
 
         # --- 1. Create Users ---
+        # MODIFIED: Admin user is minimal
         admin = User(
             name="Admin User",
             email="admin@example.com",
-            degree="PhD",
-            school="Example University",
-            cpa=4.0,
-            study_field="Computer Science",
-            country_origin="Germany",
             role="admin",
         )
         admin.set_password("admin123")
@@ -60,12 +56,16 @@ def seed(config_name="dev"):  # Allow passing in a config name
             name="Chalmers University of Technology", 
             country=c_sweden
         )
+        u_tu_berlin = University(
+            name="TU Berlin",
+            country=c_germany
+        )
         u_various_eu = University(
             name="Various Universities",
             country=c_eu
         )
         
-        db.session.add_all([u_kth, u_chalmers, u_various_eu])
+        db.session.add_all([u_kth, u_chalmers, u_tu_berlin, u_various_eu])
 
         # --- 4. Create Document Lookup Table ---
         doc_lor = Document(name="Letter of Recommendation")
@@ -82,8 +82,9 @@ def seed(config_name="dev"):  # Allow passing in a config name
         tag_eu = Tag(name="eu")
         tag_germany = Tag(name="germany")
         tag_guide = Tag(name="guide")
+        tag_sweden = Tag(name="sweden") # <-- ADDED SWEDEN TAG
         
-        db.session.add_all([tag_scholarships, tag_eu, tag_germany, tag_guide])
+        db.session.add_all([tag_scholarships, tag_eu, tag_germany, tag_guide, tag_sweden])
 
         # Commit all the lookup tables and users
         print("Committing Users, Countries, Unis, Docs, and Tags...")
@@ -122,26 +123,58 @@ def seed(config_name="dev"):  # Allow passing in a config name
             description="General Erasmus scholarship program.",
             source_url="https://erasmus-plus.ec.europa.eu/"
         )
+        
+        p_tu_berlin = Program(
+            title="Master Scholarship at TU Berlin",
+            program_type="scholarship",
+            university=u_tu_berlin,
+            degree_level="Master",
+            deadline=date(2024, 11, 30),
+            start_date=date(2024, 10, 1),
+            description="Scholarship for CS at TU Berlin.",
+            source_url="https." # Placeholder
+        )
 
-        db.session.add_all([p_kth_cyber, p_chalmers_cyber, p_erasmus])
+        db.session.add_all([p_kth_cyber, p_chalmers_cyber, p_erasmus, p_tu_berlin])
 
         # --- 7. Create Requirements for Programs ---
         
-        # KTH Requirements
-        req_kth_degree = RequirementSet(program=p_kth_cyber, requirement_type="degree", description="Bachelor's degree in Computer Science or equivalent.")
-        req_kth_docs = RequirementSet(program=p_kth_cyber, requirement_type="documents", description="Standard application documents via University Admissions Sweden.")
-        req_kth_docs.documents.extend([doc_sop, doc_transcript, doc_degree, doc_cv, doc_english])
+        # MODIFIED: Combined into ONE RequirementSet per program
+        req_kth = RequirementSet(
+            name="KTH Cybersecurity Requirements",
+            program=p_kth_cyber, 
+            degree_type_required="Bachelor's in Computer Science",
+            career_type="Engineering",
+            description="Standard application documents via University Admissions Sweden."
+        )
+        req_kth.documents.extend([doc_sop, doc_transcript, doc_degree, doc_cv, doc_english])
         
-        # Chalmers Requirements
-        req_chalmers_degree = RequirementSet(program=p_chalmers_cyber, requirement_type="degree", description="Bachelor's degree in CS, Software Eng, or equivalent.")
-        req_chalmers_docs = RequirementSet(program=p_chalmers_cyber, requirement_type="documents", description="Standard documents + 2 LORs.")
-        req_chalmers_docs.documents.extend([doc_lor, doc_sop, doc_transcript, doc_degree, doc_cv, doc_english])
+        req_chalmers = RequirementSet(
+            name="Chalmers Cybersecurity Requirements",
+            program=p_chalmers_cyber, 
+            degree_type_required="Bachelor's in CS, Software Eng, or equivalent.",
+            career_type="Engineering",
+            description="Standard documents + 2 LORs.",
+            years_experience_required=0
+        )
+        req_chalmers.documents.extend([doc_lor, doc_sop, doc_transcript, doc_degree, doc_cv, doc_english])
         
-        # Erasmus Requirements
-        req_erasmus_docs = RequirementSet(program=p_erasmus, requirement_type="documents", description="Varies by program, but generally includes these.")
-        req_erasmus_docs.documents.extend([doc_lor, doc_sop, doc_cv, doc_transcript])
+        req_erasmus = RequirementSet(
+            name="General Erasmus Requirements",
+            program=p_erasmus, 
+            degree_type_required="Bachelor's Degree",
+            description="Varies by program, but generally includes these."
+        )
+        req_erasmus.documents.extend([doc_lor, doc_sop, doc_cv, doc_transcript])
         
-        db.session.add_all([req_kth_degree, req_kth_docs, req_chalmers_degree, req_chalmers_docs, req_erasmus_docs])
+        req_tu_berlin = RequirementSet(
+            name="TU Berlin Scholarship Requirements",
+            program=p_tu_berlin,
+            degree_type_required="Bachelor's Degree in CS"
+        )
+        req_tu_berlin.documents.extend([doc_lor, doc_sop, doc_degree])
+        
+        db.session.add_all([req_kth, req_chalmers, req_erasmus, req_tu_berlin])
 
         # --- 8. Create Blog Posts ---
         b1 = BlogPost(
@@ -157,7 +190,7 @@ def seed(config_name="dev"):  # Allow passing in a config name
             content="An overview of the two best cybersecurity master's in Sweden.",
             author_id=admin.id,
             post_type=1,
-            tags=[tag_scholarships, tag_germany] # Whoops, should be sweden, but we'll use 'germany' tag for testing
+            tags=[tag_scholarships, tag_sweden] # <-- FIXED "Whoops"
         )
 
         db.session.add_all([b1, b2])
@@ -171,4 +204,3 @@ def seed(config_name="dev"):  # Allow passing in a config name
 
 if __name__ == "__main__":
     seed()
-
