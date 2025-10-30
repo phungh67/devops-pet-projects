@@ -1,7 +1,8 @@
 # app/routes/events.py
 
 from flask import Blueprint, render_template, jsonify
-from app.models.event import Event
+# --- 1. IMPORT PROGRAM (replaces Event) ---
+from app.models.programs import Program
 from ..extenisions import db
 
 events_bp = Blueprint("events", __name__, url_prefix="/events")
@@ -10,46 +11,51 @@ events_bp = Blueprint("events", __name__, url_prefix="/events")
 # Public: JSON endpoint (for API/JS frontend use)
 @events_bp.route("/api", methods=["GET"])
 def list_events_json():
-    events = Event.query.all()
+    # --- 2. QUERY PROGRAM (replaces Event) ---
+    programs = Program.query.all()
+    
     return jsonify([
         {
-            "id": e.id,
-            "title": e.title,
-            "start": e.deadline.strftime("%Y-%m-%d"),
-            # "source_url": e.source_url,
+            "id": p.id,
+            "title": p.title,
+            "start": p.deadline.strftime("%Y-%m-%d"),
             "extendedProps": {
-                "university": e.university,
-                "country": e.country,
-                "degree_level": e.degree_level,
-                "description": e.description,
-                "source_url": e.source_url,
+                # 3. Access university/country via relationships
+                "university": p.university.name if p.university else "N/A (Scholarship)",
+                "country": p.university.country.name if p.university and p.university.country else "Various",
+                "degree_level": p.degree_level,
+                "description": p.description,
+                "source_url": p.source_url,
             }
         }
-        for e in events
+        for p in programs
     ])
 
 
 # Public: Calendar HTML page
 @events_bp.route("/", methods=["GET"])
 def calendar_view():
-    events = Event.query.order_by(Event.deadline).all()
-    return render_template("events/calendar.html", events=events)
+    # --- 4. QUERY PROGRAM (replaces Event) ---
+    programs = Program.query.order_by(Program.deadline).all()
+    return render_template("events/calendar.html", events=programs)
 
 @events_bp.route("/api/gantt", methods=["GET"])
 def list_events_gantt_json():
-    events = Event.query.all()
+    # --- 5. QUERY PROGRAM (replaces Event) ---
+    programs = Program.query.all()
     
     # Format data specifically for Frappe Gantt
     tasks = [
         {
-            "id": str(e.id),
-            "name": e.title,
-            "start": e.start_date.strftime("%Y-%m-%d"),
-            "end": e.deadline.strftime("%Y-%m-%d"),
-            "progress": 50,  # You can make this dynamic later
-            "source_url": e.source_url
+            "id": str(p.id),
+            "name": p.title,
+            # Handle possible null start_date
+            "start": p.start_date.strftime("%Y-%m-%d") if p.start_date else p.deadline.strftime("%Y-%m-%d"),
+            "end": p.deadline.strftime("%Y-%m-%d"),
+            "progress": 50,
+            "source_url": p.source_url
         }
-        for e in events
+        for p in programs
     ]
     return jsonify(tasks)
 
@@ -58,3 +64,4 @@ def list_events_gantt_json():
 @events_bp.route("/gantt", methods=["GET"])
 def gantt_view():
     return render_template("events/gantt.html")
+
