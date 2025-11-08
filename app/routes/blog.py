@@ -61,12 +61,8 @@ def create_post():
         title = request.form.get("title")
         content = request.form.get("content")
         file = request.files.get("image")
-        
-        # --- GET THE TAGS STRING ---
-        tags_string = request.form.get("tags")
 
-        # ... (your existing title/content check) ...
-        # ... (your existing file/filename logic) ...
+        tags_string = request.form.get("tags")
 
         post_type = 1 if current_user.role == "admin" else 2
 

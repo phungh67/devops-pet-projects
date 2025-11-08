@@ -1,7 +1,6 @@
 # app/routes/events.py
 
 from flask import Blueprint, render_template, jsonify
-# --- 1. IMPORT PROGRAM (replaces Event) ---
 from app.models.programs import Program
 from ..extenisions import db
 
